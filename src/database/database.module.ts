@@ -15,8 +15,6 @@ export const PG_POOL = 'PG_POOL';
           user: process.env.DB_USER ?? 'postgres',
           password: process.env.DB_PASSWORD ?? 'postgres',
           database: process.env.DB_NAME ?? 'orders_db',
-          // Tamaño del pool: ajustable por env para el benchmark.
-          // Postgres permite 100 conexiones por defecto.
           max: Number(process.env.DB_POOL_MAX ?? 20),
           idleTimeoutMillis: 30000,
           connectionTimeoutMillis: 10000,

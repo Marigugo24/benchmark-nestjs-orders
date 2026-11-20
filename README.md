@@ -64,15 +64,6 @@ done
 El punto de estrés es el primer nivel donde el % de error deja de ser 0, el P95 se dispara
 o el throughput deja de crecer o cae.
 
-> **Ojo con los niveles de carga.** El PDF es inconsistente: la sección 5 pide 20 / 70 / 150
-> usuarios y la sección 6 (resultados y tabla grupal) pide 10 / 50 / 100 + estrés de 20 en 20.
-> Aquí se usa 10 / 50 / 100 porque es lo que va en la tabla de entrega. Confírmalo con el
-> profesor o con tu grupo, y que los 4 usen los mismos niveles para que la comparación valga.
-
-Sin ningún Timer en el plan, cada usuario dispara requests sin pausa, así que 100 usuarios
-es carga muy agresiva. Si el grupo acuerda pausa entre requests, añadan un Constant Timer
-igual para los 4 stacks.
-
 ## 3. Qué guardar por escenario
 
 Del **Aggregate Report** / **Summary Report**:
@@ -97,25 +88,21 @@ Anota el **pico** de CPU y RAM de cada contenedor mientras corre la prueba (no e
 Para guardar el historial: `docker stats --no-stream api-orders db-orders >> jmeter/results/stats-<escenario>.txt`
 en un bucle, o simplemente toma captura en el momento de mayor carga.
 
-Ten en cuenta que `docker stats` reporta CPU por núcleo (200 % = 2 núcleos al tope).
-Si el grupo compara CPU, aclaren si es por núcleo o normalizado.
 
-## 6. Decisiones de implementación (útiles para las conclusiones del grupo)
+## 5. Decisiones de implementación
 
 - **Pool de `pg`** con `max = 20` (`DB_POOL_MAX`). Con 100 usuarios concurrentes, las requests
   excedentes hacen cola esperando conexión. Es un candidato clásico a cuello de botella;
-  puedes repetir una prueba con `DB_POOL_MAX=50` para comparar.
 - **Transacción** (`BEGIN`/`COMMIT`) que inserta la orden y todos los items; un solo `INSERT`
   multi-fila para `order_items`.
-- **Sin ORM**: SQL directo, para medir el stack y no el ORM. Si el profesor espera TypeORM,
-  el resultado sería más lento.
+- **Sin ORM**: SQL directo, para medir el stack y no el ORM.
 - **Node es single-thread**: una sola instancia usa ~1 núcleo, así que su CPU suele toparse
-  en ~100 % antes que la BD. Útil para explicar la diferencia con Go/Rust/Spring Boot.
+  en ~100 % antes que la BD.
 - `ValidationPipe` (class-validator) valida cada request; tiene un costo real y forma parte
   de lo que un NestJS típico hace en producción.
 - Logging por request desactivado, ya que distorsiona la medición.
 
-## 7. Limpieza entre pruebas
+## 6. Limpieza entre pruebas
 
 Para que cada escenario parta en igualdad de condiciones:
 
@@ -125,7 +112,7 @@ docker exec db-orders psql -U postgres -d orders_db -c "TRUNCATE orders, order_i
 
 Apagar todo: `docker compose down` (con `-v` borra también los datos).
 
-## 8. Resultados
+## 7. Resultados
 
 Entorno: MacBook Air con 8 GB de RAM. La API, PostgreSQL y JMeter corrieron en la misma máquina. Cada escenario duró 60 segundos, con pool de 20 conexiones a la base de datos.
 

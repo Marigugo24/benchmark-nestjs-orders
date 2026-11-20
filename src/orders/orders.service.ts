@@ -17,7 +17,6 @@ export class OrdersService {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async create(dto: CreateOrderDto): Promise<OrderResponse> {
-    // 1. Calcular totalAmount e itemsCount (en centavos para evitar errores de float)
     let totalCents = 0;
     let itemsCount = 0;
     for (const item of dto.items) {
@@ -27,7 +26,6 @@ export class OrdersService {
     const totalAmount = totalCents / 100;
     const orderId = `ORD-${randomUUID()}`;
 
-    // 2. Insertar en orders y order_items dentro de una transacción
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
@@ -39,7 +37,6 @@ export class OrdersService {
         [orderId, dto.customerId, totalAmount, itemsCount],
       );
 
-      // Un solo INSERT multi-fila para todos los items
       const values: (string | number)[] = [];
       const placeholders = dto.items.map((item, i) => {
         const o = i * 4;
@@ -54,7 +51,6 @@ export class OrdersService {
 
       await client.query('COMMIT');
 
-      // 3. Respuesta
       return {
         orderId,
         customerId: dto.customerId,

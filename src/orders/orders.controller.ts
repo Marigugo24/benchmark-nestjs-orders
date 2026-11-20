@@ -6,7 +6,6 @@ import { OrdersService } from './orders.service';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  // POST /api/orders
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() dto: CreateOrderDto) {

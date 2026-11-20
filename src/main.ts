@@ -3,7 +3,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  // logger reducido: el logging por request distorsiona el benchmark
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log'],
   });
