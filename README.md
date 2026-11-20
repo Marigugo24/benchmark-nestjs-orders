@@ -100,28 +100,6 @@ en un bucle, o simplemente toma captura en el momento de mayor carga.
 Ten en cuenta que `docker stats` reporta CPU por núcleo (200 % = 2 núcleos al tope).
 Si el grupo compara CPU, aclaren si es por núcleo o normalizado.
 
-## 5. Plantilla de resultados (tu fila: NestJS)
-
-| Escenario | Avg (ms) | P95 (ms) | Throughput (req/s) | % Error |
-|---|---|---|---|---|
-| Baja (10) | | | | |
-| Media (50) | | | | |
-| Alta (100) | | | | |
-| Estrés (__ usuarios) | | | | |
-
-| Escenario | CPU API (%) | RAM API (MiB) | CPU DB (%) | RAM DB (MiB) | Observaciones |
-|---|---|---|---|---|---|
-| Baja (10) | | | | | |
-| Media (50) | | | | | |
-| Alta (100) | | | | | |
-| Estrés | | | | | |
-
-### Evidencias a adjuntar
-- Captura Summary Report y Aggregate Report (por escenario)
-- Captura de JMeter durante la carga
-- `docker ps`
-- `docker stats` y `htop` durante cada prueba
-
 ## 6. Decisiones de implementación (útiles para las conclusiones del grupo)
 
 - **Pool de `pg`** con `max = 20` (`DB_POOL_MAX`). Con 100 usuarios concurrentes, las requests
