@@ -146,3 +146,34 @@ docker exec db-orders psql -U postgres -d orders_db -c "TRUNCATE orders, order_i
 ```
 
 Apagar todo: `docker compose down` (con `-v` borra también los datos).
+
+## 8. Resultados
+
+Entorno: MacBook Air con 8 GB de RAM. La API, PostgreSQL y JMeter corrieron en la misma máquina. Cada escenario duró 60 segundos, con pool de 20 conexiones a la base de datos.
+
+### Rendimiento
+
+| Escenario | Avg (ms) | P95 (ms) | Throughput (req/s) | % Error |
+|---|---|---|---|---|
+| Baja (10) | 4.32 | 8 | 2200.9 | 0 % |
+| Media (50) | 20.19 | 36 | 2269.1 | 0 % |
+| Alta (100) | 34.95 | 60 | 2387.6 | 0 % |
+| Estrés (300) | 126 | 191 | 1971.9 | 0 % |
+
+### Consumo de recursos
+
+| Escenario | CPU API | RAM API | CPU DB | RAM DB | Observaciones |
+|---|---|---|---|---|---|
+| Baja (10) | 110 % | 94 MiB | 103 % | 75 MiB | Estable, sin errores |
+| Media (50) | 109 % | 87 MiB | 85 % | 174 MiB | Sin errores; throughput ya plano |
+| Alta (100) | 112 % | 101 MiB | 83 % | 202 MiB | Sin errores; máximos aislados de ~1 s |
+| Estrés (300) | 145 % | 108 MiB | 122 % | 270 MiB | Sin errores; latencia 3 veces mayor que en el punto de saturación |
+
+El CPU está medido por núcleo (100 % equivale a un núcleo completo).
+
+### Observaciones
+
+- El punto de saturación está en unos 160 usuarios, donde el throughput llega a su máximo (2746 req/s). Después solo sube la latencia.
+- No hubo errores en ningún nivel, hasta 300 usuarios. NestJS se degrada por encolamiento, no por fallos.
+- Node usa un solo hilo, por eso la API se acerca a un núcleo desde la carga baja y más usuarios no aumentan el throughput.
+- Entre corridas del mismo nivel hay variación de alrededor del 20 %, porque JMeter, la API y la base de datos comparten la CPU de un equipo con 8 GB y el swap casi lleno.

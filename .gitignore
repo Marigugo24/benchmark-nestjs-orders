@@ -2,3 +2,4 @@ node_modules
 dist
 jmeter/results
 *.jtl
+jmeter.log
