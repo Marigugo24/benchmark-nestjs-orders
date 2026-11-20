@@ -36,3 +36,11 @@ El CPU está medido por núcleo (100% equivale a un núcleo completo).
 | Stack | Avg (ms) | P95 (ms) | Throughput (req/s) | % Error |
 |---|---|---|---|---|
 | NestJS (Node) | 126 | 191 | 1971.9 | 0% |
+
+## Conclusiones individuales - NestJS (Node.js)
+
+- **Latencia y throughput:** el promedio sube de 4.32 ms con 10 usuarios a 126 ms con 300, y el P95 de 8 a 191 ms. El throughput se mantiene entre 2200 y 2750 req/s y llega a su máximo (2746 req/s) con unos 160 usuarios.
+- **Estabilidad:** no hubo errores en ninguno de los niveles, hasta 300 usuarios. La degradación fue gradual: la API se encola, pero no falla.
+- **Posibles causas de la saturación:** Node ejecuta el código en un solo hilo, por lo que la API usó entre 109 % y 145 % de CPU (poco más de un núcleo) incluso con carga baja. Además, el pool de 20 conexiones a PostgreSQL hace cola cuando hay más usuarios. La base de datos también llegó a 103-122 % de CPU, así que el cuello de botella parece repartido entre la API y Postgres. No se midió cuál pesa más.
+- **Limitación del entorno:** JMeter, la API y la base de datos corrieron en el mismo equipo de 8 GB con el swap casi lleno, y entre corridas del mismo nivel hubo una variación de alrededor del 20 %.
+- **Pendiente para el grupo:** comparar estos resultados con Flask, Spring Boot y Go o Rust para responder qué stack tuvo mejor latencia y throughput, cuál fue más estable, y cuál recomendar para producción.
